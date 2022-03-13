@@ -39,8 +39,6 @@ let messageColumn;
 let levelTargets = [0, 500, 1750, 5000];
 let messageToShow;
 
-let scrollBar;
-
 function preload() {
     backgroundImage = loadImage("assets/background.png");
     cyanobacteriaImage = loadImage("assets/ecoli.jpg");
@@ -55,7 +53,7 @@ function preload() {
 }
 
 function setup() {
-    canvas = createCanvas(displayWidth, displayHeight);
+    canvas = createCanvas(windowWidth, windowHeight);
     navbar = new Navbar(60 + (displayWidth/20), 250, 150, 60, ["Reactions", "Inventory", "Coenzymes", "Homeostasis", "Pathways"], "Reactions");
     levelBar = new LevelBar((displayWidth - 800)/2, 50, 800, 60, 0);
     profile = new Profile(90 + (displayWidth/20), 30, 100, "E. Coli");
@@ -116,44 +114,43 @@ function setup() {
     sucroseMessage.show = false;
 
     messageColumn = new MessageColumn((displayWidth - 800)/2, 200, 800, 700, [fructoseMessage, sucroseMessage]);
-
-    scrollBar = new VerticalScrollBar(600, 300, 20, 600, 800);
 }
 
 function draw() {
     background(backgroundImage);
-
   
     //UPDATE BEFORE DRAW
     //Held mouse interactions
-    glycolysis.checkPressed(function () {
-        glucose.increment(-1);
-        pyruvate.increment(2);
-        nadh.increment(2);
-        incrementATP(2);
-    }); 
-    krebs.checkPressed(function () {
-        pyruvate.increment(-2);
-        nadh.increment(8);
-        fadh.increment(2);
-        incrementATP(2);
-    }); 
-    etc.checkPressed(function () {
-        nadh.increment(-10);
-        fadh.increment(-2);
-        incrementATP(32);
-    });
-    fructolysis.checkPressed(function () {
-        fructose.increment(-1);
-        pyruvate.increment(2);
-        nadh.increment(2);
-        incrementATP(2);
-    }); 
-    sucroseHydrolysis.checkPressed(function () {
-        sucrose.increment(-1);
-        glucose.increment(1);
-        fructose.increment(1);
-    });
+    if(!reactions.scrollBar.selected){
+        glycolysis.checkPressed(function () {
+            glucose.increment(-1);
+            pyruvate.increment(2);
+            nadh.increment(2);
+            scoreBox.incrementATP(2);
+        }); 
+        krebs.checkPressed(function () {
+            pyruvate.increment(-2);
+            nadh.increment(8);
+            fadh.increment(2);
+            scoreBox.incrementATP(2);
+        }); 
+        etc.checkPressed(function () {
+            nadh.increment(-10);
+            fadh.increment(-2);
+            scoreBox.incrementATP(32);
+        });
+        fructolysis.checkPressed(function () {
+            fructose.increment(-1);
+            pyruvate.increment(2);
+            nadh.increment(2);
+            scoreBox.incrementATP(2);
+        }); 
+        sucroseHydrolysis.checkPressed(function () {
+            sucrose.increment(-1);
+            glucose.increment(1);
+            fructose.increment(1);
+        }); 
+    }
 
     //Level Dynamics
     var previousTarget = 0;
@@ -177,8 +174,6 @@ function draw() {
     }
   
     //Level Bar Calculation
-    // console.log("a"+previousTarget);
-    // console.log("b"+target);
     levelBar.percentageComplete = (scoreBox.score - previousTarget) / levelTargets[levelBar.level]; 
   
     //Draw UI Components
@@ -186,33 +181,24 @@ function draw() {
     navbar.draw();
     levelBar.draw(target - scoreBox.score);
     scoreBox.draw();
-    scrollBar.draw();
   
     //Notification
     navbar.showUpdate = messageColumn.checkForMessages();
   
     switch (navbar.activeTab){
         case "Reactions":
-            reactions.draw(); //Aligns Quantity Bars
-            // glycolysis.draw();
-            // krebs.draw();
-            // etc.draw();
-            // fructolysis.draw();
-            // sucroseHydrolysis.draw();
+            reactions.scrollBar.checkPressed();
+            reactions.draw();
             break;
 
         case "Inventory":
-            inventory.draw(); //Aligns Quantity Bars
-            // glucose.draw(glucoseImage);
-            // pyruvate.draw(pyruvateImage);
-            // fructose.draw(fructoseImage);
-            // sucrose.draw(sucroseImage);
+            inventory.scrollBar.checkPressed();
+            inventory.draw();
             break;
         
         case "Coenzymes":
+            coenzymes.scrollBar.checkPressed();
             coenzymes.draw();
-            // nadh.draw();
-            // fadh.draw();
             break;
 
         case "Homeostasis":
@@ -227,10 +213,6 @@ function mouseClicked() {
     sucroseMessage.checkPressed();
 }
 
-function mouseDragged() {
-    scrollBar.checkPressed();
-}
-
-function incrementATP(number) {
-    scoreBox.score += number;
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }

@@ -182,6 +182,10 @@ class ScoreBox extends UIComponent {
         textAlign(CENTER, CENTER);
         text(this.score + " ATP", this.x + (this.sizeX/2), this.y + (this.sizeY/2));
     }
+
+    incrementATP(number) {
+        this.score += number;
+    }
 }
 
 class VerticalScrollBar extends UIComponent {
@@ -191,29 +195,43 @@ class VerticalScrollBar extends UIComponent {
         this.sizeY = sizeY;
         this.yDimension = yDimension;
         this.yPosition = this.y;
+        this.selected = false;
     }
 
     draw() {
-        fill(100);
-        stroke(100);
-        strokeWeight(2);
-        rect(this.x, this.y, this.sizeX, this.sizeY, this.sizeX/2);
-        fill(34);
-        noStroke();
-        rect(this.x, this.yPosition, this.sizeX, this.sizeY*(this.sizeY/this.yDimension), this.sizeX/2);
+        if(this.show){
+            fill(100);
+            stroke(100);
+            strokeWeight(2);
+            rect(this.x, this.y, this.sizeX, this.sizeY, this.sizeX/2);
+            fill(34);
+            noStroke();
+            rect(this.x, this.yPosition, this.sizeX, this.sizeY*(this.sizeY/this.yDimension), this.sizeX/2);
+        }
     }
 
     checkPressed() {
-        let b = new Button(this.x, this.yPosition, this.sizeX, this.sizeY*(this.sizeY/this.yDimension));
-        if(b.checkPressed()){
-            this.yPosition += movedY;
+        if(this.show){
+            if(mouseIsPressed){
+                if(!this.selected){
+                    let b = new Button(this.x, this.yPosition, this.sizeX, this.sizeY*(this.sizeY/this.yDimension));
+                    if(b.checkPressed()){
+                        this.selected = true;
+                    }
+                }
+                if(this.selected) {
+                    this.yPosition += movedY;
+                    if(this.yPosition < this.y) {
+                        this.yPosition = this.y;
+                    }
+                    if((this.yPosition-this.y) > (this.sizeY-(this.sizeY*(this.sizeY/this.yDimension)))){
+                        this.yPosition = this.y + (this.sizeY-(this.sizeY*(this.sizeY/this.yDimension)));
+                    }
+                }
+            }else {
+                this.selected = false;
+            } 
         }
-        if(this.yPosition < this.y) {
-            this.yPosition = this.y;
-        }
-        // if(this.yPosition > (this.sizeY-(this.sizeY*(this.sizeY/this.yDimension)))){
-        //     this.yPosition = (this.sizeY-(this.sizeY*(this.sizeY/this.yDimension)));
-        // }
     }
 }
 
@@ -365,22 +383,25 @@ class QuantityBarColumn extends UIComponent {
         this.sizeY = sizeY;
         this.quantityBars = quantityBars;
         this.graphics = createGraphics(this.sizeX, this.sizeY);
+        this.scrollBar = new VerticalScrollBar(this.x + this.sizeX + 15, this.y, 15, this.sizeY, this.sizeY + 200);
     }
 
     draw() {
         this.graphics.clear();
-        var yCoord = 50;
-        var yCoordButton = this.y + yCoord;
+        var yCoord = 50 - (this.scrollBar.yPosition - this.scrollBar.y);
+        var startYCoord = yCoord;
         for(let q of this.quantityBars) {
             if(!q.show){
                 continue;
             }
-            q.changeCoords(50, yCoord, this.x, yCoordButton);
+            q.changeCoords(50, yCoord, this.x, this.y + yCoord);
             q.draw(this.graphics);
             yCoord += 150;
-            yCoordButton += 150;
         }
         image(this.graphics, this.x, this.y);
+        this.scrollBar.show = (yCoord - startYCoord + 50) > this.scrollBar.sizeY;
+        this.scrollBar.yDimension = yCoord - startYCoord + 50;
+        this.scrollBar.draw();
     }
 }
 
