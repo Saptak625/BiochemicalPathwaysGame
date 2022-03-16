@@ -248,7 +248,10 @@ class QuantityBar extends UIComponent {
         this.maxAmount = maxAmount;
     }
 
-    draw(c, barColor = 34) {
+    draw(c, barColor = 34, disabled = false) {
+        if(disabled){
+            this.amount = 0; //No green bar allowed.
+        }
         if(this.show) {
             c.stroke(0);
             c.fill(barColor);
@@ -260,7 +263,7 @@ class QuantityBar extends UIComponent {
             c.fill(255);
             c.textSize(18);
             c.textAlign(CENTER, TOP);
-            c.text(this.amount + " / " + this.maxAmount, this.x + (this.sizeX/2), this.y + this.sizeY + 20); 
+            c.text(Math.round(this.amount) + " / " + this.maxAmount, this.x + (this.sizeX/2), this.y + this.sizeY + 20); 
         }
     }
 
@@ -286,6 +289,7 @@ class ReactionUI extends QuantityBar {
         this.button = new Button(this.x, this.y, this.sizeX, this.sizeY);
         this.reactantImage = reactantImage;
         this.productImage = productImage;
+        this.enzymesMade = true;
         this.disabled = disabled;
     }
   
@@ -294,7 +298,7 @@ class ReactionUI extends QuantityBar {
             if(!this.disabled()){
                 super.draw(c); 
             } else {
-                super.draw(c, 100);
+                super.draw(c, 100, true);
             }
             c.stroke(0);
             c.fill(255);
@@ -322,6 +326,10 @@ class ReactionUI extends QuantityBar {
         this.button = new Button(newButtonX, newButtonY, this.sizeX, this.sizeY);
     }
 
+    disableEnzymes(action, numOfSeconds) {
+        setTimeout(action, numOfSeconds * 1000);
+    }
+  
     checkPressed(action = function() {}) {
         if(this.show && !this.disabled()){
             if(this.button.checkPressed() && mouseIsPressed === true) {
@@ -341,6 +349,7 @@ class ProductUI extends QuantityBar {
     constructor(x, y, sizeX, sizeY, label, amount, maxAmount, reactantImage) {
         super(x, y, sizeX, sizeY, label, amount, maxAmount);
         this.reactantImage = reactantImage;
+        this.refillStarted = false;
     }
   
     draw(c) {
@@ -359,7 +368,10 @@ class ProductUI extends QuantityBar {
     }
 
     startRefill(action, numOfSeconds){
-        setInterval(action, numOfSeconds * 1000);
+        if(!this.refillStarted){
+            setInterval(action, numOfSeconds * 1000);
+            this.refillStarted = true; 
+        }
     }
 }
 
@@ -385,11 +397,11 @@ class QuantityBarColumn extends UIComponent {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.quantityBars = quantityBars;
-        this.graphics = createGraphics(this.sizeX, this.sizeY);
         this.scrollBar = new VerticalScrollBar(this.x + this.sizeX + 15, this.y, 15, this.sizeY, this.sizeY);
     }
 
     draw() {
+        this.graphics = createGraphics(this.sizeX, this.sizeY);
         this.graphics.clear();
         var yCoord = 50 - (this.scrollBar.yPosition - this.scrollBar.y);
         var startYCoord = yCoord;
@@ -404,7 +416,7 @@ class QuantityBarColumn extends UIComponent {
         image(this.graphics, this.x, this.y);
         [this.scrollBar.x, this.scrollBar.y, this.scrollBar.sizeX, this.scrollBar.sizeY] = [this.x + this.sizeX + 15, this.y, 15, this.sizeY];
         this.scrollBar.show = (yCoord - startYCoord + 50) > this.scrollBar.sizeY;
-        this.scrollBar.yDimension = yCoord - startYCoord + 50;
+        this.scrollBar.yDimension = (50 + yCoord - startYCoord)*1.4;
         this.scrollBar.draw();
     }
 }

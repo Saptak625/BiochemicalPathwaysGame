@@ -7,6 +7,8 @@ let glucoseImage;
 let pyruvateImage;
 let fructoseImage;
 let sucroseImage;
+let galactoseImage;
+let lactoseImage;
 let nadhImage;
 
 //UI Components
@@ -19,14 +21,19 @@ let scoreBox;
 
 let reactions;
 let sucroseHydrolysis;
+let lactoseHydrolysis;
+let leloir;
 let glycolysis;
-let fructolysis
+let fructolysis;
 let krebs;
 let etc;
 
 let inventory;
 let glucose;
 let fructose;
+let sucrose;
+let galactose;
+let lactose;
 let pyruvate;
 
 let nadh;
@@ -34,6 +41,8 @@ let fadh;
 
 let fructoseMessage;
 let sucroseMessage;
+let galactoseMessage;
+let lactoseMessage;
 let messageColumn;
 
 let levelTargets = [0, 500, 1750, 4000, 10000, 30000];
@@ -48,6 +57,8 @@ function preload() {
     pyruvateImage = loadImage("assets/pyruvate.svg");
     fructoseImage = loadImage("assets/fructose.png");
     sucroseImage = loadImage("assets/sucrose.png");
+    galactoseImage = loadImage("assets/galactose.png");
+    lactoseImage = loadImage("assets/lactose.png");
 
     nadhImage = loadImage("assets/nadh.png");
 }
@@ -77,18 +88,30 @@ function setup() {
       return sucrose.amount < 1;
     }, reactantImage = sucroseImage, productImage = glucoseImage);
     sucroseHydrolysis.show = false;
-    reactions = new QuantityBarColumn(width * 0.2, height * 0.2, width * 0.6, height * 0.75, [sucroseHydrolysis, glycolysis, fructolysis, krebs, etc]);
+    leloir = new ReactionUI(width * 0.25, 650, width * 0.5, 60, "Leloir Pathway", "Galactose", "Glucose", 0, 100, 0.5, function () {
+      return galactose.amount < 1 || !leloir.enzymesMade;
+    }, reactantImage = galactoseImage, productImage = glucoseImage);
+    leloir.show = false;
+    lactoseHydrolysis = new ReactionUI(width * 0.25, 650, width * 0.5, 60, "Lactose Hydrolysis", "Lactose", "Glucose + Galactose", 0, 100, 0.5, function () {
+      return lactose.amount < 1;
+    }, reactantImage = lactoseImage, productImage = glucoseImage);
+    lactoseHydrolysis.show = false;
+    reactions = new QuantityBarColumn(width * 0.2, height * 0.2, width * 0.6, height * 0.75, [sucroseHydrolysis, lactoseHydrolysis, leloir, glycolysis, fructolysis, krebs, etc]);
 
-    glucose = new ProductUI(width * 0.25, 200, width * 0.5, 60, "Glucose", 10, 500, glucoseImage);
+    glucose = new ProductUI(width * 0.25, 200, width * 0.5, 60, "Glucose", 10, 100, glucoseImage);
     glucose.startRefill(function () {
       glucose.increment(1);
     }, 12);
-    pyruvate = new ProductUI(width * 0.25, 350, width * 0.5, 60, "Pyruvate", 0, 500, pyruvateImage);
-    fructose = new ProductUI(width * 0.25, 200, width * 0.5, 60, "Fructose", 10, 500, fructoseImage);
+    pyruvate = new ProductUI(width * 0.25, 350, width * 0.5, 60, "Pyruvate", 0, 100, pyruvateImage);
+    fructose = new ProductUI(width * 0.25, 200, width * 0.5, 60, "Fructose", 10, 100, fructoseImage);
     fructose.show = false;
-    sucrose = new ProductUI(width * 0.25, 200, width * 0.5, 60, "Sucrose", 10, 500, sucroseImage);
+    sucrose = new ProductUI(width * 0.25, 200, width * 0.5, 60, "Sucrose", 10, 100, sucroseImage);
     sucrose.show = false;
-    inventory = new QuantityBarColumn(width * 0.2, height * 0.2, width * 0.6, height * 0.75, [glucose, fructose, sucrose, pyruvate]);
+    galactose = new ProductUI(width * 0.25, 200, width * 0.5, 60, "Galactose", 10, 100, galactoseImage);
+    galactose.show = false;
+    lactose = new ProductUI(width * 0.25, 200, width * 0.5, 60, "Lactose", 10, 100, lactoseImage);
+    lactose.show = false;
+    inventory = new QuantityBarColumn(width * 0.2, height * 0.2, width * 0.6, height * 0.75, [glucose, fructose, sucrose, galactose, lactose, pyruvate]);
   
     nadh = new CoenzymeUI(width * 0.25, 200, width * 0.5, 60, "NADH", 0, 500);
     fadh = new CoenzymeUI(width * 0.25, 350, width * 0.5, 60, "FADH2", 0, 500);
@@ -113,7 +136,33 @@ function setup() {
     });
     sucroseMessage.show = false;
 
-    messageColumn = new MessageColumn(width * 0.25, 200, width * 0.5, 700, [fructoseMessage, sucroseMessage]);
+    galactoseMessage = new HomeostasisMessage(width * 0.25, 200, width * 0.5, 100, "Galactose Sugar Building Up!", "Turn On Gal Operon", function () {
+      galactose.show = true;
+      leloir.show = true;
+      leloir.enzymesMade = true;
+      leloir.disableEnzymes(function () {
+          leloir.enzymesMade = false;
+      }, 60);
+      galactose.startRefill(function () {
+        galactose.increment(1);
+      }, 150);
+    });
+    galactoseMessage.show = false;
+  
+    lactoseMessage = new HomeostasisMessage(width * 0.25, 200, width * 0.5, 100, "Lactose Sugar Building Up!", "Turn On Lac Operon", function () {
+      lactose.show = true;
+      lactoseHydrolysis.show = true;
+      lactoseHydrolysis.enzymesMade = true;
+      lactoseHydrolysis.disableEnzymes(function () {
+          lactoseHydrolysis.enzymesMade = false;
+      }, 60);
+      lactose.startRefill(function () {
+        lactose.increment(1);
+      }, 300);
+    });
+    lactoseMessage.show = false;
+  
+    messageColumn = new MessageColumn(width * 0.25, 200, width * 0.5, 700, [fructoseMessage, sucroseMessage, galactoseMessage, lactoseMessage]);
 }
 
 function draw() {
@@ -149,9 +198,28 @@ function draw() {
             sucrose.increment(-1);
             glucose.increment(1);
             fructose.increment(1);
-        }); 
+        });
+        leloir.checkPressed(function () {
+            galactose.increment(-1);
+            glucose.increment(1);
+        });
+        lactoseHydrolysis.checkPressed(function () {
+            lactose.increment(-1);
+            glucose.increment(1);
+            galactose.increment(1);
+        });
     }
 
+    //Enzyme Alerts
+    if(galactose.amount > 10 && !leloir.enzymesMade) { //Alert if greater than threshold and enzymes stopped functioning.
+        navbar.showUpdate = true;
+        galactoseMessage.show = true;
+    }
+    if(lactose.amount > 10 && !lactoseHydrolysis.enzymesMade) { //Alert if greater than threshold and enzymes stopped functioning.
+        navbar.showUpdate = true;
+        lactoseMessage.show = true;
+    }
+  
     //Level Dynamics
     var previousTarget = 0;
     for (let i = 0; i < levelBar.level; i++) {
@@ -211,6 +279,8 @@ function mouseClicked() {
     navbar.checkPressed();
     fructoseMessage.checkPressed();
     sucroseMessage.checkPressed();
+    galactoseMessage.checkPressed();
+    lactoseMessage.checkPressed();
 }
 
 function windowResized() {
@@ -229,12 +299,16 @@ function resizeUI() { //Dynamic Responsive UI
     [etc.x, etc.y, etc.sizeX, etc.sizeY] = [width * 0.25, 500, width * 0.5, 60];
     [fructolysis.x, fructolysis.y, fructolysis.sizeX, fructolysis.sizeY] = [width * 0.25, 650, width * 0.5, 60];
     [sucroseHydrolysis.x, sucroseHydrolysis.y, sucroseHydrolysis.sizeX, sucroseHydrolysis.sizeY] = [width * 0.25, 650, width * 0.5, 60];
+    [leloir.x, leloir.y, leloir.sizeX, leloir.sizeY] = [width * 0.25, 650, width * 0.5, 60];
+    [lactoseHydrolysis.x, lactoseHydrolysis.y, lactoseHydrolysis.sizeX, lactoseHydrolysis.sizeY] = [width * 0.25, 650, width * 0.5, 60];
     [reactions.x, reactions.y, reactions.sizeX, reactions.sizeY] = [width * 0.2, height * 0.2, width * 0.6, height * 0.75];
 
     [glucose.x, glucose.y, glucose.sizeX, glucose.sizeY] = [width * 0.25, 200, width * 0.5, 60];
     [pyruvate.x, pyruvate.y, pyruvate.sizeX, pyruvate.sizeY] = [width * 0.25, 350, width * 0.5, 60];
     [fructose.x, fructose.y, fructose.sizeX, fructose.sizeY] = [width * 0.25, 200, width * 0.5, 60];
     [sucrose.x, sucrose.y, sucrose.sizeX, sucrose.sizeY] = [width * 0.25, 200, width * 0.5, 60];
+    [galactose.x, galactose.y, galactose.sizeX, galactose.sizeY] = [width * 0.25, 200, width * 0.5, 60];
+    [lactose.x, lactose.y, lactose.sizeX, lactose.sizeY] = [width * 0.25, 200, width * 0.5, 60];
     [inventory.x, inventory.y, inventory.sizeX, inventory.sizeY] = [width * 0.2, height * 0.2, width * 0.6, height * 0.75];
 
     [nadh.x, nadh.y, nadh.sizeX, nadh.sizeY] = [width * 0.25, 200, width * 0.5, 60];
@@ -243,6 +317,7 @@ function resizeUI() { //Dynamic Responsive UI
 
     [fructoseMessage.x, fructoseMessage.y, fructoseMessage.sizeX, fructoseMessage.sizeY] = [width * 0.25, 200, width * 0.5, 100];
     [sucroseMessage.x, sucroseMessage.y, sucroseMessage.sizeX, sucroseMessage.sizeY] = [width * 0.25, 200, width * 0.5, 100];
-
+    [galactoseMessage.x, galactoseMessage.y, galactoseMessage.sizeX, galactoseMessage.sizeY] = [width * 0.25, 200, width * 0.5, 100];
+    [lactoseMessage.x, lactoseMessage.y, lactoseMessage.sizeX, lactoseMessage.sizeY] = [width * 0.25, 200, width * 0.5, 100];
     [messageColumn.x, messageColumn.y, messageColumn.sizeX, messageColumn.sizeY] = [width * 0.25, 200, width * 0.5, 700];
 }
