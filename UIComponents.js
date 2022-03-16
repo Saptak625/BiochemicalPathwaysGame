@@ -56,7 +56,7 @@ class Navtab extends Button {
         text(this.label, this.x + (this.sizeX/2), this.y + (this.sizeY/2));
         if(this.showUpdate) {
             fill(204, 0, 0);
-            ellipse(this.x + this.sizeX - 10, this.y + 15, 10, 10);
+            ellipse(this.x + this.sizeX - (width/150), this.y + (height/55), 10, 10);
         }
     }
 }
@@ -81,8 +81,11 @@ class Navbar extends UIComponent {
         stroke(34);
         strokeWeight(2);
         rect(this.x, this.y, this.sizeX, this.sizeY * Object.keys(this.tabs).length, 8)
+        var currentY = this.y;
         for(let t in this.tabs) {
+            [this.tabs[t].x, this.tabs[t].y, this.tabs[t].sizeX, this.tabs[t].sizeY] = [this.x, currentY, this.sizeX, this.sizeY];
             this.tabs[t].draw(t == this.activeTab, this.tabs[t].checkPressed());
+            currentY += this.sizeY;
         }
 
         this.tabs["Homeostasis"].showUpdate = this.showUpdate;
@@ -383,7 +386,7 @@ class QuantityBarColumn extends UIComponent {
         this.sizeY = sizeY;
         this.quantityBars = quantityBars;
         this.graphics = createGraphics(this.sizeX, this.sizeY);
-        this.scrollBar = new VerticalScrollBar(this.x + this.sizeX + 15, this.y, 15, this.sizeY, this.sizeY + 200);
+        this.scrollBar = new VerticalScrollBar(this.x + this.sizeX + 15, this.y, 15, this.sizeY, this.sizeY);
     }
 
     draw() {
@@ -394,11 +397,12 @@ class QuantityBarColumn extends UIComponent {
             if(!q.show){
                 continue;
             }
-            q.changeCoords(50, yCoord, this.x, this.y + yCoord);
+            q.changeCoords(width * 0.05, yCoord, this.x, this.y + yCoord);
             q.draw(this.graphics);
             yCoord += 150;
         }
         image(this.graphics, this.x, this.y);
+        [this.scrollBar.x, this.scrollBar.y, this.scrollBar.sizeX, this.scrollBar.sizeY] = [this.x + this.sizeX + 15, this.y, 15, this.sizeY];
         this.scrollBar.show = (yCoord - startYCoord + 50) > this.scrollBar.sizeY;
         this.scrollBar.yDimension = yCoord - startYCoord + 50;
         this.scrollBar.draw();
