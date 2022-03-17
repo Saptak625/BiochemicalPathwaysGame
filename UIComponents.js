@@ -199,6 +199,7 @@ class VerticalScrollBar extends UIComponent {
         this.yDimension = yDimension;
         this.yPosition = this.y;
         this.selected = false;
+        this.button = new Button(this.x, this.yPosition, this.sizeX, this.sizeY*(this.sizeY/this.yDimension));
     }
 
     draw() {
@@ -217,8 +218,7 @@ class VerticalScrollBar extends UIComponent {
         if(this.show){
             if(mouseIsPressed){
                 if(!this.selected){
-                    let b = new Button(this.x, this.yPosition, this.sizeX, this.sizeY*(this.sizeY/this.yDimension));
-                    if(b.checkPressed()){
+                    if(this.button.checkPressed()){
                         this.selected = true;
                     }
                 }
@@ -323,7 +323,7 @@ class ReactionUI extends QuantityBar {
 
     changeCoords(newX, newY, newButtonX, newButtonY) {
         super.changeCoords(newX, newY);
-        this.button = new Button(newButtonX, newButtonY, this.sizeX, this.sizeY);
+        [this.button.x, this.button.y, this.button.sizeX, this.button.sizeY] = [newButtonX, newButtonY, this.sizeX, this.sizeY];
     }
 
     disableEnzymes(action, numOfSeconds) {
@@ -398,10 +398,10 @@ class QuantityBarColumn extends UIComponent {
         this.sizeY = sizeY;
         this.quantityBars = quantityBars;
         this.scrollBar = new VerticalScrollBar(this.x + this.sizeX + 15, this.y, 15, this.sizeY, this.sizeY);
+        this.graphics = createGraphics(this.sizeX, this.sizeY);
     }
 
     draw() {
-        this.graphics = createGraphics(this.sizeX, this.sizeY);
         this.graphics.clear();
         var yCoord = 50 - (this.scrollBar.yPosition - this.scrollBar.y);
         var startYCoord = yCoord;
@@ -418,6 +418,10 @@ class QuantityBarColumn extends UIComponent {
         this.scrollBar.show = (yCoord - startYCoord + 50) > this.scrollBar.sizeY;
         this.scrollBar.yDimension = (50 + yCoord - startYCoord)*1.4;
         this.scrollBar.draw();
+    }
+
+    resizeCanvas(){
+        this.graphics = createGraphics(this.sizeX, this.sizeY);
     }
 }
 
@@ -461,7 +465,7 @@ class HomeostasisMessage extends UIComponent {
     changeCoords(newX, newY) {
         this.x = newX;
         this.y = newY;
-        this.button = new Button(this.x + this.sizeX - 250, this.y + 20, 230, this.sizeY-40);
+        [this.button.x, this.button.y, this.button.sizeX, this.button.sizeY] = [this.x + this.sizeX - 250, this.y + 20, 230, this.sizeY-40];
     }
 }
 
@@ -489,14 +493,5 @@ class MessageColumn extends UIComponent {
             textSize(32);
             text("No Issues with Homeostasis!", this.x + (this.sizeX/2), this.y + 50);
         }
-    }
-
-    checkForMessages() {
-        for(let m of this.messages) {
-            if(m.show) {
-                return true;
-            }
-        }
-        return false;
     }
 }

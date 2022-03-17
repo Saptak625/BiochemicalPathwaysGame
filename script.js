@@ -45,6 +45,7 @@ let galactoseMessage;
 let lactoseMessage;
 let messageColumn;
 
+var previousTarget = 0;
 let levelTargets = [0, 500, 1750, 4000, 10000, 30000];
 let messageToShow;
 
@@ -221,18 +222,11 @@ function draw() {
     }
   
     //Level Dynamics
-    var previousTarget = 0;
-    for (let i = 0; i < levelBar.level; i++) {
-        previousTarget += levelTargets[i];
-    }
     var target = previousTarget + levelTargets[levelBar.level];
     while(scoreBox.score >= target) {
         if(levelBar.level < (levelTargets.length-1)){
           levelBar.levelUp();
-          previousTarget = 0;
-          for (let i = 0; i < levelBar.level; i++) {
-              previousTarget += levelTargets[i];
-          }
+          previousTarget += levelTargets[levelBar.level-1];
           target = previousTarget + levelTargets[levelBar.level];
           navbar.showUpdate = true;
           messageColumn.messages[levelBar.level - 2].show = true;
@@ -249,9 +243,6 @@ function draw() {
     navbar.draw();
     levelBar.draw(target - scoreBox.score);
     scoreBox.draw();
-  
-    //Notification
-    navbar.showUpdate = messageColumn.checkForMessages();
   
     switch (navbar.activeTab){
         case "Reactions":
@@ -271,6 +262,7 @@ function draw() {
 
         case "Homeostasis":
             messageColumn.draw();
+            navbar.showUpdate = false;
             break;
     }
 }
@@ -302,6 +294,7 @@ function resizeUI() { //Dynamic Responsive UI
     [leloir.x, leloir.y, leloir.sizeX, leloir.sizeY] = [width * 0.25, 650, width * 0.5, 60];
     [lactoseHydrolysis.x, lactoseHydrolysis.y, lactoseHydrolysis.sizeX, lactoseHydrolysis.sizeY] = [width * 0.25, 650, width * 0.5, 60];
     [reactions.x, reactions.y, reactions.sizeX, reactions.sizeY] = [width * 0.2, height * 0.2, width * 0.6, height * 0.75];
+    reactions.resizeCanvas();
 
     [glucose.x, glucose.y, glucose.sizeX, glucose.sizeY] = [width * 0.25, 200, width * 0.5, 60];
     [pyruvate.x, pyruvate.y, pyruvate.sizeX, pyruvate.sizeY] = [width * 0.25, 350, width * 0.5, 60];
@@ -310,10 +303,12 @@ function resizeUI() { //Dynamic Responsive UI
     [galactose.x, galactose.y, galactose.sizeX, galactose.sizeY] = [width * 0.25, 200, width * 0.5, 60];
     [lactose.x, lactose.y, lactose.sizeX, lactose.sizeY] = [width * 0.25, 200, width * 0.5, 60];
     [inventory.x, inventory.y, inventory.sizeX, inventory.sizeY] = [width * 0.2, height * 0.2, width * 0.6, height * 0.75];
+    inventory.resizeCanvas();
 
     [nadh.x, nadh.y, nadh.sizeX, nadh.sizeY] = [width * 0.25, 200, width * 0.5, 60];
     [fadh.x, fadh.y, fadh.sizeX, fadh.sizeY] = [width * 0.25, 350, width * 0.5, 60];
     [coenzymes.x, coenzymes.y, coenzymes.sizeX, coenzymes.sizeY] = [width * 0.2, height * 0.2, width * 0.6, height * 0.75];
+    coenzymes.resizeCanvas();
 
     [fructoseMessage.x, fructoseMessage.y, fructoseMessage.sizeX, fructoseMessage.sizeY] = [width * 0.25, 200, width * 0.5, 100];
     [sucroseMessage.x, sucroseMessage.y, sucroseMessage.sizeX, sucroseMessage.sizeY] = [width * 0.25, 200, width * 0.5, 100];
