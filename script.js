@@ -117,7 +117,6 @@ function setup() {
     nadh = new CoenzymeUI(width * 0.25, 200, width * 0.5, 60, "NADH", 0, 500);
     fadh = new CoenzymeUI(width * 0.25, 350, width * 0.5, 60, "FADH2", 0, 500);
     coenzymes = new QuantityBarColumn(width * 0.2, height * 0.2, width * 0.6, height * 0.75, [nadh, fadh]);
-    // localStorage.setItem("lastname", "Smith");
 
     fructoseMessage = new HomeostasisMessage(width * 0.25, 200, width * 0.5, 100, "Fructose Sugar found!", "Unlock Fructose Pathway", function () {
       fructose.show = true;
@@ -164,6 +163,12 @@ function setup() {
     lactoseMessage.show = false;
   
     messageColumn = new MessageColumn(width * 0.25, 200, width * 0.5, 700, [fructoseMessage, sucroseMessage, galactoseMessage, lactoseMessage]);
+
+    storage = new LocalStorage();
+    if(storage.get("game_started") !== null) {
+        console.log("hello");
+        retrieveGame();
+    }
 }
 
 function draw() {
@@ -228,8 +233,10 @@ function draw() {
           levelBar.levelUp();
           previousTarget += levelTargets[levelBar.level-1];
           target = previousTarget + levelTargets[levelBar.level];
-          navbar.showUpdate = true;
-          messageColumn.messages[levelBar.level - 2].show = true;
+          if(!messageColumn.messages[levelBar.level - 2].accepted) {
+            navbar.showUpdate = true;
+            messageColumn.messages[levelBar.level - 2].show = true;
+          }
         }else{
           break;
         }

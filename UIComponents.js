@@ -127,7 +127,7 @@ class LevelBar extends UIComponent {
         if(this.percentageComplete < 0.05){
             xDimension += 40;
         }
-        text(Math.round((this.percentageComplete * 100)) + "%", xDimension, this.y + (this.sizeY/2));
+        text(Math.floor((this.percentageComplete * 100)) + "%", xDimension, this.y + (this.sizeY/2));
         textAlign(CENTER, CENTER);
         textStyle(BOLD);
         fill(255);
