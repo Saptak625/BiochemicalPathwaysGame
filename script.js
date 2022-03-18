@@ -93,10 +93,12 @@ function setup() {
       return galactose.amount < 1 || !leloir.enzymesMade;
     }, reactantImage = galactoseImage, productImage = glucoseImage);
     leloir.show = false;
+		leloir.enzymesMade = false;
     lactoseHydrolysis = new ReactionUI(width * 0.25, 650, width * 0.5, 60, "Lactose Hydrolysis", "Lactose", "Glucose + Galactose", 0, 100, 0.5, function () {
       return lactose.amount < 1;
     }, reactantImage = lactoseImage, productImage = glucoseImage);
     lactoseHydrolysis.show = false;
+		lactoseHydrolysis.enzymesMade = false;
     reactions = new QuantityBarColumn(width * 0.2, height * 0.2, width * 0.6, height * 0.75, [sucroseHydrolysis, lactoseHydrolysis, leloir, glycolysis, fructolysis, krebs, etc]);
 
     glucose = new ProductUI(width * 0.25, 200, width * 0.5, 60, "Glucose", 10, 100, glucoseImage);
@@ -136,10 +138,12 @@ function setup() {
     });
     sucroseMessage.show = false;
 
-    galactoseMessage = new HomeostasisMessage(width * 0.25, 200, width * 0.5, 100, "Galactose Sugar Building Up!", "Turn On Gal Operon", function () {
+    galactoseMessage = new HomeostasisMessage(width * 0.25, 200, width * 0.5, 100, "Galactose Sugar Building Up!", "Turn On Gal Operon", function (make = true) {
       galactose.show = true;
       leloir.show = true;
-      leloir.enzymesMade = true;
+			if(make) {
+				leloir.enzymesMade = true;
+			}
       leloir.disableEnzymes(function () {
           leloir.enzymesMade = false;
       }, 60);
@@ -149,10 +153,12 @@ function setup() {
     });
     galactoseMessage.show = false;
   
-    lactoseMessage = new HomeostasisMessage(width * 0.25, 200, width * 0.5, 100, "Lactose Sugar Building Up!", "Turn On Lac Operon", function () {
+    lactoseMessage = new HomeostasisMessage(width * 0.25, 200, width * 0.5, 100, "Lactose Sugar Building Up!", "Turn On Lac Operon", function (make = true) {
       lactose.show = true;
       lactoseHydrolysis.show = true;
-      lactoseHydrolysis.enzymesMade = true;
+			if(make) {
+				lactoseHydrolysis.enzymesMade = true;
+			}
       lactoseHydrolysis.disableEnzymes(function () {
           lactoseHydrolysis.enzymesMade = false;
       }, 60);
@@ -166,7 +172,6 @@ function setup() {
 
     storage = new LocalStorage();
     if(storage.get("game_started") !== null) {
-        console.log("hello");
         retrieveGame();
     }
 }
@@ -217,11 +222,11 @@ function draw() {
     }
 
     //Enzyme Alerts
-    if(galactose.amount > 10 && !leloir.enzymesMade) { //Alert if greater than threshold and enzymes stopped functioning.
+    if(galactose.accepted && galactose.amount >= 10 && !leloir.enzymesMade) { //Alert if greater than threshold and enzymes stopped functioning.
         navbar.showUpdate = true;
         galactoseMessage.show = true;
     }
-    if(lactose.amount > 10 && !lactoseHydrolysis.enzymesMade) { //Alert if greater than threshold and enzymes stopped functioning.
+    if(lactose.accepted && slactose.amount >= 10 && !lactoseHydrolysis.enzymesMade) { //Alert if greater than threshold and enzymes stopped functioning.
         navbar.showUpdate = true;
         lactoseMessage.show = true;
     }

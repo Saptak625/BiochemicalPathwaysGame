@@ -1,3 +1,5 @@
+var gameSave = true;
+
 class LocalStorage {
     constructor(objectsDictionary){
         this.objectsDictionary = objectsDictionary;
@@ -20,26 +22,28 @@ class LocalStorage {
 }
 
 function saveGame() {
-    storage = new LocalStorage({
-        "score": scoreBox.score, 
-        "glucose": {"amount": glucose.amount, "show": glucose.show}, 
-        "fructose": {"amount": fructose.amount, "show": fructose.show}, 
-        "sucrose": {"amount": sucrose.amount, "show": sucrose.show}, 
-        "galactose": {"amount": galactose.amount, "show": galactose.show}, 
-        "lactose": {"amount": lactose.amount, "show": lactose.show}, 
-        "pyruvate": {"amount": pyruvate.amount, "show": pyruvate.show}, 
-        "nadh": {"amount": nadh.amount, "show": nadh.show}, 
-        "fadh": {"amount": fadh.amount, "show": fadh.show},
-        "fructolysis" : fructolysis.show,
-        "sucroseHydrolysis": sucroseHydrolysis.show,
-        "leloir": leloir.show,
-        "lactoseHydrolysis": lactoseHydrolysis.show,
-        "fructoseMessage": fructoseMessage.accepted, 
-        "sucroseMessage": sucroseMessage.accepted, 
-        "galactoseMessage": galactoseMessage.accepted, 
-        "lactoseMessage": lactoseMessage.accepted
-    });
-    storage.save();
+    if(gameSave) {
+        storage = new LocalStorage({
+            "score": scoreBox.score, 
+            "glucose": {"amount": glucose.amount, "show": glucose.show}, 
+            "fructose": {"amount": fructose.amount, "show": fructose.show}, 
+            "sucrose": {"amount": sucrose.amount, "show": sucrose.show}, 
+            "galactose": {"amount": galactose.amount, "show": galactose.show}, 
+            "lactose": {"amount": lactose.amount, "show": lactose.show}, 
+            "pyruvate": {"amount": pyruvate.amount, "show": pyruvate.show}, 
+            "nadh": {"amount": nadh.amount, "show": nadh.show}, 
+            "fadh": {"amount": fadh.amount, "show": fadh.show},
+            "fructolysis" : fructolysis.show,
+            "sucroseHydrolysis": sucroseHydrolysis.show,
+            "leloir": leloir.show,
+            "lactoseHydrolysis": lactoseHydrolysis.show,
+            "fructoseMessage": fructoseMessage.accepted, 
+            "sucroseMessage": sucroseMessage.accepted, 
+            "galactoseMessage": galactoseMessage.accepted, 
+            "lactoseMessage": lactoseMessage.accepted
+        });
+        storage.save();
+    }
 }
 
 function retrieveGame() {
@@ -60,7 +64,25 @@ function retrieveGame() {
     lactoseHydrolysis.show = storage.get("lactoseHydrolysis");
 
     fructoseMessage.accepted = storage.get("fructoseMessage");
+    if(fructoseMessage.accepted) {
+        fructoseMessage.action();
+    }
     sucroseMessage.accepted = storage.get("sucroseMessage");
+    if(sucroseMessage.accepted) {
+        sucroseMessage.action();
+    }
     galactoseMessage.accepted = storage.get("galactoseMessage");
+    if(galactoseMessage.accepted) {
+        galactoseMessage.action(false);
+    }
     lactoseMessage.accepted = storage.get("lactoseMessage");
+    if(lactoseMessage.accepted) {
+        lactoseMessage.action(false);
+    }
+}
+
+function resetGame() {
+    new LocalStorage().clear();
+    gameSave = false;
+    location.reload();
 }
