@@ -222,11 +222,11 @@ function draw() {
     }
 
     //Enzyme Alerts
-    if(galactose.accepted && galactose.amount >= 10 && !leloir.enzymesMade) { //Alert if greater than threshold and enzymes stopped functioning.
+    if(galactoseMessage.accepted && galactose.amount >= 10 && !leloir.enzymesMade) { //Alert if greater than threshold and enzymes stopped functioning.
         navbar.showUpdate = true;
         galactoseMessage.show = true;
     }
-    if(lactose.accepted && slactose.amount >= 10 && !lactoseHydrolysis.enzymesMade) { //Alert if greater than threshold and enzymes stopped functioning.
+    if(lactoseMessage.accepted && lactose.amount >= 10 && !lactoseHydrolysis.enzymesMade) { //Alert if greater than threshold and enzymes stopped functioning.
         navbar.showUpdate = true;
         lactoseMessage.show = true;
     }
