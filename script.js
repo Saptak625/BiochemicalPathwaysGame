@@ -95,7 +95,7 @@ function setup() {
     leloir.show = false;
 		leloir.enzymesMade = false;
     lactoseHydrolysis = new ReactionUI(width * 0.25, 650, width * 0.5, 60, "Lactose Hydrolysis", "Lactose", "Glucose + Galactose", 0, 100, 0.5, function () {
-      return lactose.amount < 1;
+      return lactose.amount < 1 || !lactoseHydrolysis.enzymesMade;
     }, reactantImage = lactoseImage, productImage = glucoseImage);
     lactoseHydrolysis.show = false;
 		lactoseHydrolysis.enzymesMade = false;
