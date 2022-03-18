@@ -236,6 +236,10 @@ class VerticalScrollBar extends UIComponent {
             } 
         }
     }
+
+    scaledYPosition() {
+        return (this.yPosition - this.y) * (this.yDimension/this.sizeY);
+    }
 }
 
 class QuantityBar extends UIComponent {
@@ -403,7 +407,8 @@ class QuantityBarColumn extends UIComponent {
 
     draw() {
         this.graphics.clear();
-        var yCoord = 50 - (this.scrollBar.yPosition - this.scrollBar.y);
+        [this.scrollBar.x, this.scrollBar.y, this.scrollBar.sizeX, this.scrollBar.sizeY] = [this.x + this.sizeX + 15, this.y, 15, this.sizeY];
+        var yCoord = 30 - this.scrollBar.scaledYPosition();
         var startYCoord = yCoord;
         for(let q of this.quantityBars) {
             if(!q.show){
@@ -414,9 +419,8 @@ class QuantityBarColumn extends UIComponent {
             yCoord += 150;
         }
         image(this.graphics, this.x, this.y);
-        [this.scrollBar.x, this.scrollBar.y, this.scrollBar.sizeX, this.scrollBar.sizeY] = [this.x + this.sizeX + 15, this.y, 15, this.sizeY];
-        this.scrollBar.show = (yCoord - startYCoord + 50) > this.scrollBar.sizeY;
-        this.scrollBar.yDimension = (50 + yCoord - startYCoord)*1.4;
+        this.scrollBar.show = (yCoord - startYCoord) > this.scrollBar.sizeY;
+        this.scrollBar.yDimension = yCoord - startYCoord;
         this.scrollBar.draw();
     }
 
