@@ -24,6 +24,7 @@ class LocalStorage {
 function saveGame() {
     if(gameSave) {
         storage = new LocalStorage({
+            "time": new Date(),
             "score": scoreBox.score, 
             "glucose": {"amount": glucose.amount, "show": glucose.show}, 
             "fructose": {"amount": fructose.amount, "show": fructose.show}, 
@@ -44,6 +45,17 @@ function saveGame() {
         });
         storage.save();
     }
+}
+
+function idleRewards(){
+    prevTime = new Date(storage.get("time"));
+    currTime = new Date();
+    timeElapsed = (currTime - prevTime)/1000;
+    //Add raw resources based on time away
+    glucose.fillByTime(timeElapsed);
+    fructose.fillByTime(timeElapsed);
+    sucrose.fillByTime(timeElapsed);
+    galactose.fillByTime(timeElapsed);
 }
 
 function retrieveGame() {
@@ -79,6 +91,7 @@ function retrieveGame() {
     if(lactoseMessage.accepted) {
         lactoseMessage.action(false);
     }
+    idleRewards()
 }
 
 function resetGame() {

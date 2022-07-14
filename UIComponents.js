@@ -355,6 +355,7 @@ class ProductUI extends QuantityBar {
         super(x, y, sizeX, sizeY, label, amount, maxAmount);
         this.reactantImage = reactantImage;
         this.refillStarted = false;
+        this.numOfSeconds = null
     }
   
     draw(c) {
@@ -373,9 +374,16 @@ class ProductUI extends QuantityBar {
     }
 
     startRefill(action, numOfSeconds){
+        this.numOfSeconds = numOfSeconds
         if(!this.refillStarted){
             setInterval(action, numOfSeconds * 1000);
             this.refillStarted = true; 
+        }
+    }
+
+    fillByTime(timeElapsedInSeconds){
+        if(this.numOfSeconds){
+            this.increment(timeElapsedInSeconds/this.numOfSeconds) 
         }
     }
 }
