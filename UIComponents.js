@@ -215,6 +215,7 @@ class VerticalScrollBar extends UIComponent {
     }
 
     checkPressed() {
+        [this.button.x, this.button.y, this.button.sizeX, this.button.sizeY] = [this.x, this.yPosition, this.sizeX, this.sizeY*(this.sizeY/this.yDimension)];
         if(this.show){
             if(mouseIsPressed){
                 if(!this.selected){
